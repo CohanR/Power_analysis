@@ -1,0 +1,40 @@
+import numpy as np
+import statsmodels.stats.power as smp
+import matplotlib.pyplot as plt
+
+# Convert partial eta squared to Cohen's d
+def eta_squared_to_cohens_d(eta_squared):
+    return np.sqrt(4 * eta_squared / (1 - eta_squared))
+
+# Compute required sample size for given effect size for between-subject design
+def required_sample_size_between(effect_size, alpha=0.05, power=0.8):
+    power_analysis = smp.TTestIndPower()
+    return power_analysis.solve_power(effect_size=effect_size, alpha=alpha, power=power, alternative='two-sided')
+
+# GABA effect from the study (ηp²)
+gaba_eta_squared = 0.167
+gaba_d = eta_squared_to_cohens_d(gaba_eta_squared)
+gaba_n = required_sample_size_between(gaba_d)
+
+# Glutamate effect size based on the study
+glutamate_eta_squared = 0.130
+glutamate_d = eta_squared_to_cohens_d(glutamate_eta_squared)
+glutamate_n = required_sample_size_between(glutamate_d)
+
+# Print my results
+print(f"Required sample size for GABA levels (between-subject): {np.ceil(gaba_n)}")
+print(f"Required sample size for Glutamate levels (between-subject): {np.ceil(glutamate_n)}")
+
+# Plot 
+labels = ['GABA levels', 'Glutamate levels']
+sizes = [np.ceil(gaba_n), np.ceil(glutamate_n)]
+colors = ['#66b2ff', '#ffcc99']
+
+plt.bar(labels, sizes, color=colors)
+plt.xlabel('Measurements')
+plt.ylabel('Sample Size')
+plt.title('Required Sample Size for Between-Subject Design')
+plt.tight_layout()
+plt.grid(axis='y')
+
+plt.show()
